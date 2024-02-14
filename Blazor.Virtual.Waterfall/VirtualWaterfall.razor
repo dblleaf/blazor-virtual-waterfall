@@ -1,0 +1,14 @@
+﻿@typeparam TItem
+<div class="virtual-waterfall">
+    <div class="heighter" style="@(this.Layout.HeighterStyle)">
+    </div>
+    <div style="@(this.Layout.SpacerBeforeStyle)" class="spacer spacer-before" @ref="spacerBefore"></div>
+    <div style="@(this.Layout.SpacerAfterStyle)" class="spacer spacer-after" @ref="spacerAfter"></div>
+    @if (this.Layout.RenderItems?.Any() == true)
+    {
+        @foreach (var item in this.Layout.RenderItems)
+        {
+            <div class="item" style="@(item.Style)">@ItemTemplate(item.Data)</div>
+        }
+    }
+</div>

@@ -1,0 +1,41 @@
+﻿@page "/"
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+
+<VirtualWaterfall TItem="Item"
+                  Layout="layout"
+                  ItemsSource="items">
+    <ItemTemplate>
+        <div style="height:100%;background-color:#@(context.Color);opacity:0.3;">
+            <div>@(context.Color)</div>
+        </div>
+    </ItemTemplate>
+</VirtualWaterfall>
+
+
+@code {
+    private List<Item> items => Enumerable.Range(0, 5000).Select(o => new Item { Color = this.GetColor(), Height = this.randomHeight.Next(200, 600) }).ToList();
+    private Random random = new Random();
+    private Random randomHeight = new Random();
+    private Blazor.Virtual.Waterfall.ILayout<Item> layout = new DefaultLayout<Item>
+        {
+            Spacing = 8,
+            HeightCalulater = (o, _) => o.Height,
+        };
+    private string GetColor()
+    {
+        return random.Next(16777215).ToString("X2").PadLeft(6, '0');
+    }
+
+    public class Item
+    {
+        public int Height { get; set; }
+
+        public string Color { get; set; }
+    }
+}
