@@ -36,10 +36,8 @@ const invokeInit = (dotNetHelper: DotNet.DotNetObject, container: HTMLElement): 
 
 const init = (dotNetHelper: DotNet.DotNetObject, spacerBefore: HTMLElement, spacerAfter: HTMLElement) => {
     const container = spacerBefore.parentElement;
-    console.log(container)
     invokeInit(dotNetHelper, container);
     scrollContainer = findClosestScrollContainer(container);
-    console.log(scrollContainer);
     const intersectionObserver = new IntersectionObserver(intersectionCallback, {
         root: scrollContainer,
         rootMargin: `50px`,
@@ -49,19 +47,19 @@ const init = (dotNetHelper: DotNet.DotNetObject, spacerBefore: HTMLElement, spac
     intersectionObserver.observe(spacerAfter);
     const mutationObserverBefore = createSpacerMutationObserver(spacerBefore);
     const mutationObserverAfter = createSpacerMutationObserver(spacerAfter);
+    const resizeObserver = new ResizeObserver(resizeCallback);
 
     const { observersByDotNetObjectId, id } = getObserversMapEntry(dotNetHelper);
     observersByDotNetObjectId[id] = {
         intersectionObserver,
         mutationObserverBefore,
         mutationObserverAfter,
+        resizeObserver,
     };
 
     function createSpacerMutationObserver(spacer: Element): MutationObserver {
         const observerOptions = { attributes: true };
         const mutationObserver = new MutationObserver((mutations: MutationRecord[], observer: MutationObserver): void => {
-            console.log('AttributesChanged')
-            console.log(spacer)
             intersectionObserver.unobserve(spacer);
             intersectionObserver.observe(spacer);
         });
@@ -72,22 +70,18 @@ const init = (dotNetHelper: DotNet.DotNetObject, spacerBefore: HTMLElement, spac
 
     function intersectionCallback(entries: IntersectionObserverEntry[]): void {
         entries.forEach((entry): void => {
-            console.log('intersectionCallback')
             if (!entry.isIntersecting) {
                 return;
             }
-            console.log(entry);
             const containerHeight = (scrollContainer || document.documentElement).clientHeight;
             const scrollTop = (scrollContainer || document.documentElement).scrollTop;
             const scrollHeight = (scrollContainer || document.documentElement).scrollHeight;
 
             if (entry.target == spacerBefore) {
-                console.log('OnSpacerBeforeVisible')
                 dotNetHelper.invokeMethodAsync('OnSpacerBeforeVisible', scrollTop, scrollHeight, containerHeight);
             } else if (entry.target == spacerAfter) {
                 const style = getComputedStyle(spacerAfter);
                 if (parseInt(style.top.replace('px', '')) > 0) {
-                    console.log('OnSpacerAfterVisible')
                     dotNetHelper.invokeMethodAsync('OnSpacerAfterVisible', scrollTop, scrollHeight, containerHeight);
                 }
             }
@@ -96,10 +90,10 @@ const init = (dotNetHelper: DotNet.DotNetObject, spacerBefore: HTMLElement, spac
 
     function resizeCallback(entries: ResizeObserverEntry[]): void {
         entries.forEach((entry): void => {
-            if (entry.target == scrollContainer) {
+            if (entry.target == container) {
                 dotNetHelper.invokeMethodAsync("OnContentWidthChange", entry.contentRect.width, false);
             }
-        })
+        });
     }
 }
 
@@ -114,13 +108,13 @@ const scrollTo = (top: number): void => {
 
 const dispose = (dotNetHelper: DotNet.DotNetObject): void => {
     const { observersByDotNetObjectId, id } = getObserversMapEntry(dotNetHelper);
-    console.log(observersByDotNetObjectId, id);
     const observers = observersByDotNetObjectId[id];
 
     if (observers) {
         observers.intersectionObserver.disconnect();
         observers.mutationObserverBefore.disconnect();
         observers.mutationObserverAfter.disconnect();
+        observers.resizeObserver.disconnect();
 
         dotNetHelper.dispose();
         delete observersByDotNetObjectId[id];

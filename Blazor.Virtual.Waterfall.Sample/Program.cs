@@ -1,4 +1,4 @@
-namespace Blazor.Virtual.Waterfall.Simple;
+namespace Blazor.Virtual.Waterfall.Sample;
 
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
