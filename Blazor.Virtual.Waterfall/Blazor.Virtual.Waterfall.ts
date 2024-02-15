@@ -48,7 +48,7 @@ const init = (dotNetHelper: DotNet.DotNetObject, spacerBefore: HTMLElement, spac
     const mutationObserverBefore = createSpacerMutationObserver(spacerBefore);
     const mutationObserverAfter = createSpacerMutationObserver(spacerAfter);
     const resizeObserver = new ResizeObserver(resizeCallback);
-
+    resizeObserver.observe(container);
     const { observersByDotNetObjectId, id } = getObserversMapEntry(dotNetHelper);
     observersByDotNetObjectId[id] = {
         intersectionObserver,

@@ -43,7 +43,11 @@ public partial class VirtualWaterfall<TItem> : IVirtualWaterfallJsCallbacks, IAs
             this.Layout.UpdateItems(this.ItemsSource);
             if (!firstCallback)
             {
-                this.Layout.Render(this.scrollTop, this.scrollHeight, this.LoadDataAsync());
+                this.Layout.Render(
+                    this.scrollTop,
+                    this.clientHeight,
+                    this.loadMoreInforTask);
+                this.StateHasChanged();
             }
         }
     }
