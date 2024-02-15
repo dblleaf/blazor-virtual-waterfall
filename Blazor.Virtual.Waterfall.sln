@@ -5,7 +5,7 @@ VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.Virtual.Waterfall", "Blazor.Virtual.Waterfall\Blazor.Virtual.Waterfall.csproj", "{378A7B42-5DFB-4AAE-A136-99CEEE4DE8E0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.Virtual.Waterfall.Simple", "Blazor.Virtual.Waterfall.Simple\Blazor.Virtual.Waterfall.Simple.csproj", "{D97FF600-63E4-4823-80AC-614543E6C5ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.Virtual.Waterfall.Sample", "Blazor.Virtual.Waterfall.Sample\Blazor.Virtual.Waterfall.Sample.csproj", "{D97FF600-63E4-4823-80AC-614543E6C5ED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

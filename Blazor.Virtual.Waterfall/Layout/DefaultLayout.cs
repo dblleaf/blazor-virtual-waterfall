@@ -39,7 +39,7 @@ public class DefaultLayout<TItem> : ILayout<TItem>
 
     public List<VirtualWaterfallItem<TItem>> RenderItems { get; private set; } = [];
 
-    private List<VirtualWaterfallItem<TItem>> Items { get; init; } = [];
+    private List<VirtualWaterfallItem<TItem>> Items { get; } = [];
 
     public bool OnContentWidthChange(float width)
     {
