@@ -21,7 +21,7 @@ public class DefaultLayout<TItem> : ILayout<TItem>
 
     public int MinColumnCount { get; set; } = 1;
 
-    public Func<TItem, float, float> HeightCalulater { get; set; }
+    public Func<TItem, float, float> HeightCalculator { get; set; }
 
     public Style SpacerBeforeStyle
         => Style.Create()
@@ -56,7 +56,7 @@ public class DefaultLayout<TItem> : ILayout<TItem>
         var virtualWaterfallItem = new VirtualWaterfallItem<TItem>
         {
             Data = item,
-            Height = this.HeightCalulater(item, this.columnWidth),
+            Height = this.HeightCalculator(item, this.columnWidth),
             Width = this.columnWidth,
             Left = colomnIdex * (this.columnWidth + this.Spacing),
             Top = this.columnsTop[colomnIdex],

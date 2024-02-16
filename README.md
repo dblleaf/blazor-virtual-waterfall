@@ -32,7 +32,7 @@ This is a virtual waterfall component packaged with blazor.
         private Blazor.Virtual.Waterfall.ILayout<Item> layout = new DefaultLayout<Item>
         {
             Spacing = 8,
-            HeightCalulater = (o, _) => o.Height,
+            HeightCalculator = (o, _) => o.Height,
         };
         private string GetColor()
         {
