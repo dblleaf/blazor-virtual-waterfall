@@ -44,16 +44,10 @@ public class DefaultLayout<TItem> : ILayout<TItem>
     public bool OnContentWidthChange(float width)
     {
         this.contentWidth = width;
-        var result = false;
-        if (this.columnCount != this.CalColumnCount())
-        {
-            this.columnCount = this.CalColumnCount();
-            this.columnWidth = this.GetColumnWidth();
-            this.ReLayout();
-            result = true;
-        }
-
-        return result;
+        this.columnCount = this.CalColumnCount();
+        this.columnWidth = this.GetColumnWidth();
+        this.ReLayout();
+        return true;
     }
 
     public VirtualWaterfallItem<TItem> ToVirtualWaterfallItem(TItem item)

@@ -2,8 +2,11 @@
 This is a virtual waterfall component packaged with blazor.
 
 ### Quick start.
-1. Import this libary `Blazor.Virtual.Waterfall` to project.
-2. Reference style and script.
+1. Add the nuget package `Blazor.Virtual.Waterfall` to project.
+    ```bash
+    dotnet add package Blazor.Virtual.Waterfall --version 1.0.2
+    ```
+2. Add style and script references.
     ```html
     ...
     <link rel="stylesheet" href="_content/Blazor.Virtual.Waterfall/Blazor.Virtual.Waterfall.css" />
