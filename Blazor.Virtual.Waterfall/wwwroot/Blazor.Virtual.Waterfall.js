@@ -9,7 +9,7 @@ const findClosestScrollContainer = (element) => {
     }
     return findClosestScrollContainer(element.parentElement);
 };
-const dispatcherObserversByDotNetIdPropname = Symbol();
+const dispatcherObserversByDotNetIdPropname = 'ObjectId';
 const getObserversMapEntry = (dotNetHelper) => {
     var _a;
     const dotNetHelperDispatcher = dotNetHelper['_callDispatcher'];

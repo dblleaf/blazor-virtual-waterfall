@@ -3,128 +3,128 @@
 let scrollContainer: HTMLElement = null;
 
 const findClosestScrollContainer = (element: HTMLElement | null): HTMLElement | null => {
-    if (!element || element === document.body || element === document.documentElement) {
-        return null;
-    }
+  if (!element || element === document.body || element === document.documentElement) {
+    return null;
+  }
 
-    const style = getComputedStyle(element);
+  const style = getComputedStyle(element);
 
-    if (style.overflowY !== 'visible') {
-        return element;
-    }
+  if (style.overflowY !== 'visible') {
+    return element;
+  }
 
-    return findClosestScrollContainer(element.parentElement);
+  return findClosestScrollContainer(element.parentElement);
 }
 
-const dispatcherObserversByDotNetIdPropname = Symbol();
+const dispatcherObserversByDotNetIdPropname = 'ObjectId';
 
 const getObserversMapEntry = (dotNetHelper: DotNet.DotNetObject): { observersByDotNetObjectId: { [id: number]: any }, id: number } => {
-    const dotNetHelperDispatcher = dotNetHelper['_callDispatcher'];
-    const dotNetHelperId = dotNetHelper['_id'];
-    dotNetHelperDispatcher[dispatcherObserversByDotNetIdPropname] ??= {};
+  const dotNetHelperDispatcher = dotNetHelper['_callDispatcher'];
+  const dotNetHelperId = dotNetHelper['_id'];
+  dotNetHelperDispatcher[dispatcherObserversByDotNetIdPropname] ??= {};
 
-    return {
-        observersByDotNetObjectId: dotNetHelperDispatcher[dispatcherObserversByDotNetIdPropname],
-        id: dotNetHelperId,
-    };
+  return {
+    observersByDotNetObjectId: dotNetHelperDispatcher[dispatcherObserversByDotNetIdPropname],
+    id: dotNetHelperId,
+  };
 }
 
 const invokeInit = (dotNetHelper: DotNet.DotNetObject, container: HTMLElement): void => {
-    const contentWidth = container.clientWidth;
-    dotNetHelper.invokeMethodAsync("OnContentWidthChange", contentWidth, true);
+  const contentWidth = container.clientWidth;
+  dotNetHelper.invokeMethodAsync("OnContentWidthChange", contentWidth, true);
 }
 
 const init = (dotNetHelper: DotNet.DotNetObject, spacerBefore: HTMLElement, spacerAfter: HTMLElement) => {
-    const container = spacerBefore.parentElement;
-    invokeInit(dotNetHelper, container);
-    scrollContainer = findClosestScrollContainer(container);
-    const intersectionObserver = new IntersectionObserver(intersectionCallback, {
-        root: scrollContainer,
-        rootMargin: `50px`,
+  const container = spacerBefore.parentElement;
+  invokeInit(dotNetHelper, container);
+  scrollContainer = findClosestScrollContainer(container);
+  const intersectionObserver = new IntersectionObserver(intersectionCallback, {
+    root: scrollContainer,
+    rootMargin: `50px`,
+  });
+
+  intersectionObserver.observe(spacerBefore);
+  intersectionObserver.observe(spacerAfter);
+  const mutationObserverBefore = createSpacerMutationObserver(spacerBefore);
+  const mutationObserverAfter = createSpacerMutationObserver(spacerAfter);
+  const resizeObserver = new ResizeObserver(resizeCallback);
+  resizeObserver.observe(container);
+  const { observersByDotNetObjectId, id } = getObserversMapEntry(dotNetHelper);
+  observersByDotNetObjectId[id] = {
+    intersectionObserver,
+    mutationObserverBefore,
+    mutationObserverAfter,
+    resizeObserver,
+  };
+
+  function createSpacerMutationObserver(spacer: Element): MutationObserver {
+    const observerOptions = { attributes: true };
+    const mutationObserver = new MutationObserver((mutations: MutationRecord[], observer: MutationObserver): void => {
+      intersectionObserver.unobserve(spacer);
+      intersectionObserver.observe(spacer);
     });
 
-    intersectionObserver.observe(spacerBefore);
-    intersectionObserver.observe(spacerAfter);
-    const mutationObserverBefore = createSpacerMutationObserver(spacerBefore);
-    const mutationObserverAfter = createSpacerMutationObserver(spacerAfter);
-    const resizeObserver = new ResizeObserver(resizeCallback);
-    resizeObserver.observe(container);
-    const { observersByDotNetObjectId, id } = getObserversMapEntry(dotNetHelper);
-    observersByDotNetObjectId[id] = {
-        intersectionObserver,
-        mutationObserverBefore,
-        mutationObserverAfter,
-        resizeObserver,
-    };
+    mutationObserver.observe(spacer, observerOptions);
+    return mutationObserver;
+  }
 
-    function createSpacerMutationObserver(spacer: Element): MutationObserver {
-        const observerOptions = { attributes: true };
-        const mutationObserver = new MutationObserver((mutations: MutationRecord[], observer: MutationObserver): void => {
-            intersectionObserver.unobserve(spacer);
-            intersectionObserver.observe(spacer);
-        });
+  function intersectionCallback(entries: IntersectionObserverEntry[]): void {
+    entries.forEach((entry): void => {
+      if (!entry.isIntersecting) {
+        return;
+      }
+      const containerHeight = (scrollContainer || document.documentElement).clientHeight;
+      const scrollTop = (scrollContainer || document.documentElement).scrollTop;
+      const scrollHeight = (scrollContainer || document.documentElement).scrollHeight;
 
-        mutationObserver.observe(spacer, observerOptions);
-        return mutationObserver;
-    }
+      if (entry.target == spacerBefore) {
+        dotNetHelper.invokeMethodAsync('OnSpacerBeforeVisible', scrollTop, scrollHeight, containerHeight);
+      } else if (entry.target == spacerAfter) {
+        const style = getComputedStyle(spacerAfter);
+        if (parseInt(style.top.replace('px', '')) > 0) {
+          dotNetHelper.invokeMethodAsync('OnSpacerAfterVisible', scrollTop, scrollHeight, containerHeight);
+        }
+      }
+    });
+  }
 
-    function intersectionCallback(entries: IntersectionObserverEntry[]): void {
-        entries.forEach((entry): void => {
-            if (!entry.isIntersecting) {
-                return;
-            }
-            const containerHeight = (scrollContainer || document.documentElement).clientHeight;
-            const scrollTop = (scrollContainer || document.documentElement).scrollTop;
-            const scrollHeight = (scrollContainer || document.documentElement).scrollHeight;
-
-            if (entry.target == spacerBefore) {
-                dotNetHelper.invokeMethodAsync('OnSpacerBeforeVisible', scrollTop, scrollHeight, containerHeight);
-            } else if (entry.target == spacerAfter) {
-                const style = getComputedStyle(spacerAfter);
-                if (parseInt(style.top.replace('px', '')) > 0) {
-                    dotNetHelper.invokeMethodAsync('OnSpacerAfterVisible', scrollTop, scrollHeight, containerHeight);
-                }
-            }
-        });
-    }
-
-    function resizeCallback(entries: ResizeObserverEntry[]): void {
-        entries.forEach((entry): void => {
-            if (entry.target == container) {
-                dotNetHelper.invokeMethodAsync("OnContentWidthChange", entry.contentRect.width, false);
-            }
-        });
-    }
+  function resizeCallback(entries: ResizeObserverEntry[]): void {
+    entries.forEach((entry): void => {
+      if (entry.target == container) {
+        dotNetHelper.invokeMethodAsync("OnContentWidthChange", entry.contentRect.width, false);
+      }
+    });
+  }
 }
 
 const scrollTo = (top: number): void => {
-    if (!scrollContainer) {
-        scrollContainer.scrollTo({
-            top: top,
-            behavior: 'smooth',
-        });
-    }
+  if (!scrollContainer) {
+    scrollContainer.scrollTo({
+      top: top,
+      behavior: 'smooth',
+    });
+  }
 }
 
 const dispose = (dotNetHelper: DotNet.DotNetObject): void => {
-    const { observersByDotNetObjectId, id } = getObserversMapEntry(dotNetHelper);
-    const observers = observersByDotNetObjectId[id];
+  const { observersByDotNetObjectId, id } = getObserversMapEntry(dotNetHelper);
+  const observers = observersByDotNetObjectId[id];
 
-    if (observers) {
-        observers.intersectionObserver.disconnect();
-        observers.mutationObserverBefore.disconnect();
-        observers.mutationObserverAfter.disconnect();
-        observers.resizeObserver.disconnect();
+  if (observers) {
+    observers.intersectionObserver.disconnect();
+    observers.mutationObserverBefore.disconnect();
+    observers.mutationObserverAfter.disconnect();
+    observers.resizeObserver.disconnect();
 
-        dotNetHelper.dispose();
-        delete observersByDotNetObjectId[id];
-    }
+    dotNetHelper.dispose();
+    delete observersByDotNetObjectId[id];
+  }
 }
 
 export const VirtualWaterfall = {
-    init,
-    scrollTo,
-    dispose,
+  init,
+  scrollTo,
+  dispose,
 }
 
 window['VirtualWaterfall'] = VirtualWaterfall

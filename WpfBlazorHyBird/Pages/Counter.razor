@@ -1,0 +1,22 @@
+﻿@page "/counter"
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+<Virtualize TItem="int" Items="items">
+    <ItemContent>
+        <div style="height:48px;margin:12px 6px;border:solid 1px #ccc;"></div>
+    </ItemContent>
+</Virtualize>
+
+@code {
+    private int currentCount = 0;
+    private List<int> items = Enumerable.Range(0, 500).ToList();
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+}

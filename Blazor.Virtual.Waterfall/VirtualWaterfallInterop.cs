@@ -13,17 +13,17 @@ internal class VirtualWaterfallInterop : IAsyncDisposable
 
     private readonly IVirtualWaterfallJsCallbacks owner;
 
-    private readonly DotNetObjectReference<VirtualWaterfallInterop> dotNetObject;
+    private DotNetObjectReference<VirtualWaterfallInterop> dotNetObject;
 
     public VirtualWaterfallInterop(IVirtualWaterfallJsCallbacks owner, IJSRuntime jsRuntime)
     {
         this.owner = owner;
         this.jsRuntime = jsRuntime;
-        this.dotNetObject = DotNetObjectReference.Create(this);
     }
 
     public async Task InitializeAsync(ElementReference spacerBefore, ElementReference spacerAfter)
     {
+        this.dotNetObject = DotNetObjectReference.Create(this);
         await this.jsRuntime.InvokeVoidAsync($"{JsFunctionsPrefix}.init", this.dotNetObject, spacerBefore, spacerAfter);
     }
 
