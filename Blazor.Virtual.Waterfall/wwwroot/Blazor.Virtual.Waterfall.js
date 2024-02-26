@@ -1,4 +1,5 @@
 let scrollContainer = null;
+const observersByDotNetId = {};
 const findClosestScrollContainer = (element) => {
     if (!element || element === document.body || element === document.documentElement) {
         return null;
@@ -9,14 +10,20 @@ const findClosestScrollContainer = (element) => {
     }
     return findClosestScrollContainer(element.parentElement);
 };
-const dispatcherObserversByDotNetIdPropname = 'ObjectId';
+const dispatcherObserversByDotNetIdPropname = Symbol();
 const getObserversMapEntry = (dotNetHelper) => {
     var _a;
-    const dotNetHelperDispatcher = dotNetHelper['_callDispatcher'];
     const dotNetHelperId = dotNetHelper['_id'];
-    (_a = dotNetHelperDispatcher[dispatcherObserversByDotNetIdPropname]) !== null && _a !== void 0 ? _a : (dotNetHelperDispatcher[dispatcherObserversByDotNetIdPropname] = {});
+    const dotNetHelperDispatcher = dotNetHelper['_callDispatcher'];
+    if (dotNetHelperDispatcher) {
+        (_a = dotNetHelperDispatcher[dispatcherObserversByDotNetIdPropname]) !== null && _a !== void 0 ? _a : (dotNetHelperDispatcher[dispatcherObserversByDotNetIdPropname] = {});
+        return {
+            observersByDotNetObjectId: dotNetHelperDispatcher[dispatcherObserversByDotNetIdPropname],
+            id: dotNetHelperId,
+        };
+    }
     return {
-        observersByDotNetObjectId: dotNetHelperDispatcher[dispatcherObserversByDotNetIdPropname],
+        observersByDotNetObjectId: observersByDotNetId,
         id: dotNetHelperId,
     };
 };

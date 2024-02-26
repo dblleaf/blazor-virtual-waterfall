@@ -1,6 +1,7 @@
 ﻿import { DotNet } from '@microsoft/dotnet-js-interop';
 
 let scrollContainer: HTMLElement = null;
+const observersByDotNetId = {};
 
 const findClosestScrollContainer = (element: HTMLElement | null): HTMLElement | null => {
   if (!element || element === document.body || element === document.documentElement) {
@@ -16,15 +17,22 @@ const findClosestScrollContainer = (element: HTMLElement | null): HTMLElement | 
   return findClosestScrollContainer(element.parentElement);
 }
 
-const dispatcherObserversByDotNetIdPropname = 'ObjectId';
+const dispatcherObserversByDotNetIdPropname = Symbol();
 
 const getObserversMapEntry = (dotNetHelper: DotNet.DotNetObject): { observersByDotNetObjectId: { [id: number]: any }, id: number } => {
-  const dotNetHelperDispatcher = dotNetHelper['_callDispatcher'];
   const dotNetHelperId = dotNetHelper['_id'];
-  dotNetHelperDispatcher[dispatcherObserversByDotNetIdPropname] ??= {};
-
+  const dotNetHelperDispatcher = dotNetHelper['_callDispatcher'];
+  // .Net8
+  if (dotNetHelperDispatcher) {
+    dotNetHelperDispatcher[dispatcherObserversByDotNetIdPropname] ??= {};
+    return {
+      observersByDotNetObjectId: dotNetHelperDispatcher[dispatcherObserversByDotNetIdPropname],
+      id: dotNetHelperId,
+    };
+  }
+  // dotnet less than .Net8
   return {
-    observersByDotNetObjectId: dotNetHelperDispatcher[dispatcherObserversByDotNetIdPropname],
+    observersByDotNetObjectId: observersByDotNetId,
     id: dotNetHelperId,
   };
 }

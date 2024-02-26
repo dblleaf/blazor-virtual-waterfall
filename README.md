@@ -4,7 +4,7 @@ This is a virtual waterfall component packaged with blazor.
 ### Quick start.
 1. Add the nuget package `Blazor.Virtual.Waterfall` to project.
     ```bash
-    dotnet add package Blazor.Virtual.Waterfall --version 1.0.4
+    dotnet add package Blazor.Virtual.Waterfall --version 1.0.5
     ```
 2. Add style and script references.
     ```html
