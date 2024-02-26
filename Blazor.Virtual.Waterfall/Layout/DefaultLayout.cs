@@ -85,7 +85,7 @@ public class DefaultLayout<TItem> : ILayout<TItem>
         var startIndex = 0;
         var endIndex = this.Items.Count;
         var min = this.Items.Where(o => o.Top < scrollTop - clientHeight).LastOrDefault();
-        var max = this.Items.Where(o => o.Top > scrollTop + clientHeight * 2).FirstOrDefault();
+        var max = this.Items.Where(o => o.Top + o.Height > scrollTop + clientHeight * 2).FirstOrDefault();
         if (min != null)
         {
             startIndex = this.Items.IndexOf(min);
@@ -111,10 +111,14 @@ public class DefaultLayout<TItem> : ILayout<TItem>
 
         this.RenderItems = this.Items
             .Skip(startIndex)
-        .Take(endIndex - startIndex)
+            .Take(endIndex - startIndex)
             .ToList();
-        this.spacerBeforeHeight = this.RenderItems.FirstOrDefault()?.Top ?? 0;
-        this.spacerAfterTop = this.RenderItems.LastOrDefault()?.Top + this.RenderItems.LastOrDefault()?.Height + this.Spacing ?? 0;
+
+        if (this.RenderItems?.Count > 0)
+        {
+            this.spacerBeforeHeight = this.RenderItems.GroupBy(o => o.Left, o => o.Top).Select(o => o.Min()).Max();
+            this.spacerAfterTop = this.RenderItems.GroupBy(o => o.Left, o => o.Top + o.Height).Select(o => o.Max()).Min();
+        }
     }
 
     public void UpdateItems(IEnumerable<TItem> itemsSource)

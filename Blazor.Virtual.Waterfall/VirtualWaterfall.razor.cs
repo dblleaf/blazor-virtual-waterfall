@@ -24,6 +24,9 @@ public partial class VirtualWaterfall<TItem> : IVirtualWaterfallJsCallbacks, IAs
     [Parameter]
     public Func<Task<IEnumerable<TItem>>> ItemsProvider { get; set; }
 
+    [Parameter]
+    public RenderFragment EmptyTemplate { get; set; }
+
     [Inject]
     private IJSRuntime JSRuntime { get; set; } = default!;
 
